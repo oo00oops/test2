@@ -1,17 +1,24 @@
 # EaglercraftX GitHub Pages Setup
 
-This repository is now configured for automated deployment to GitHub Pages. Your EaglercraftX web client will be automatically built and hosted on GitHub Pages with every push to the main branch.
+This repository is configured for deployment to GitHub Pages. Your EaglercraftX web client can be hosted on GitHub Pages.
+
+## Important Note: Building vs Deploying
+
+This repository **requires local setup** before it can be compiled to JavaScript:
+
+1. The Minecraft 1.8 source code is NOT included (as stated in the README)
+2. You must run the setup scripts (`build_init`, `build_make_workspace`) locally first
+3. Once compiled locally, push the `javascript/` folder to GitHub
+
+See [Setup Instructions Below](#local-setup-required)
 
 ## Quick Start
 
 ### For GitHub Pages Hosting:
 
-1. **Push to main branch** - The GitHub Actions workflow will automatically:
-   - Compile the EPK assets
-   - Compile the JavaScript client
-   - Deploy to GitHub Pages
-
-2. **Access your client at:**
+1. **Build locally** - See setup section below
+2. **Push to main branch** - The GitHub Actions workflow will automatically deploy to GitHub Pages
+3. **Access your client at:**
    ```
    https://<your-username>.github.io/<your-repo-name>/
    ```
@@ -21,45 +28,93 @@ This repository is now configured for automated deployment to GitHub Pages. Your
 **On Linux/macOS:**
 ```bash
 chmod +x setup-github-pages.sh
-./setup-github-pages.sh
-# Opens server on http://localhost:8000/
+./setup-github-pages.sh build
+# This only starts the server (no build - do that first with build_init)
 ```
 
 **On Windows:**
 ```cmd
-setup-github-pages.bat
-# Opens server on http://localhost:8000/
+setup-github-pages.bat build
+# This only starts the server (no build - do that first with build_init)
 ```
 
-Or manually:
+---
+
+## Local Setup Required
+
+Before you can deploy to GitHub Pages, you need to compile the JavaScript client locally.
+
+### Step 1: Prepare the Build Environment
+
+Follow the setup instructions in the repository README:
+
 ```bash
+# 1. Prepare Minecraft 1.8 source (see mcp918/readme.txt)
+# 2. Run build initialization
+./build_init
+
+# 3. Create workspace
+./build_make_workspace
+
+# 4. Compile EPK assets
 ./CompileEPK.sh
+
+# 5. Compile to JavaScript
 ./CompileJS.sh
-cd javascript
-python3 -m http.server 8000
 ```
+
+**Note:** This requires Java 21 and the Minecraft 1.8 source code (Mod Coder Pack).
+
+See [EAGLERCRAFTX_README.md](EAGLERCRAFTX_README.md) for detailed setup instructions.
+
+### Step 2: Verify the Build
+
+Check that `javascript/` folder contains:
+- `index.html`
+- `classes.js`
+- `assets.epk`
+- `lang/` folder
+- `favicon.png`
+
+### Step 3: Deploy to GitHub Pages
+
+```bash
+# 1. Commit your changes
+git add .
+git commit -m "Add compiled EaglercraftX client"
+
+# 2. Push to GitHub
+git push origin main
+
+# 3. Enable GitHub Pages in Settings → Pages
+#    (Select "GitHub Actions" as source)
+
+# 4. Your site will be live in 2-3 minutes at:
+#    https://<username>.github.io/<repo>/
+```
+
+---
 
 ## What's Been Set Up
 
-### Automated Deployment
+### Deployment Workflow
 - ✅ GitHub Actions workflow (`.github/workflows/deploy-pages.yml`)
-- ✅ Automatic builds on every push
-- ✅ Automatic deployment to GitHub Pages
+- ✅ Automatic deployment on every push
+- ✅ Deploys the `javascript/` folder to GitHub Pages
 
 ### Configuration
-- ✅ `.nojekyll` file - Tells GitHub to serve static files as-is
+- ✅ `.nojekyll` file - Serves static files without Jekyll processing
 - ✅ `_config.yml` - Jekyll configuration
 - ✅ Dependabot configuration for security updates
 
-### Scripts
-- ✅ `setup-github-pages.sh` - Linux/macOS setup and local testing
-- ✅ `setup-github-pages.bat` - Windows setup and local testing
-- ✅ GitHub Actions workflow in `.github/workflows/`
-
 ### Documentation
 - ✅ `docs/HOSTING_GUIDE.md` - Detailed hosting guide
+- ✅ `SETUP_CHECKLIST.md` - Complete checklist
+- ✅ This file
 
-## Repository Settings (Action Required)
+---
+
+## Repository Settings (Required Action)
 
 ⚠️ **Important:** You must enable GitHub Pages in your repository settings:
 
@@ -67,109 +122,71 @@ python3 -m http.server 8000
 2. Click **Settings** → **Pages**
 3. Under "Build and deployment":
    - **Source**: Select `GitHub Actions`
-   - Save
+   - Click **Save**
 
 Once configured, your site will be available at:
 ```
 https://<username>.github.io/<repository>/
 ```
 
-## Features
+---
 
-- 📱 **Automatic Deployment** - Builds and deploys on every push
-- 🚀 **Fast Setup** - Everything is pre-configured
-- 🔒 **Secure** - Uses GitHub Actions for automated builds
-- 📊 **CI/CD Ready** - Includes Dependabot for security updates
-- 💻 **Cross-Platform** - Works on Windows, Linux, and macOS
-
-## File Structure
+## How It Works
 
 ```
-.
-├── .github/
-│   ├── workflows/
-│   │   └── deploy-pages.yml    # GitHub Actions deployment
-│   └── dependabot.yml
-├── javascript/                 # Your compiled web client
-│   ├── .nojekyll              # Tells GitHub to serve static files
-│   ├── index.html
-│   ├── classes.js
-│   ├── assets.epk
-│   └── lang/
-├── docs/
-│   └── HOSTING_GUIDE.md        # Detailed hosting documentation
-├── setup-github-pages.sh       # Linux/macOS setup script
-├── setup-github-pages.bat      # Windows setup script
-├── _config.yml                 # Jekyll configuration
-├── src/                        # Source code
-├── build.gradle
-├── CompileEPK.sh
-└── CompileJS.sh
+Local Build
+├─ build_init script
+├─ Decompile Minecraft 1.8
+├─ Apply patches
+└─ Compile to JavaScript
+
+Commit & Push
+    ↓
+GitHub Actions Triggered
+    ├─ Checks out code
+    └─ Uploads javascript/ folder
+    ↓
+GitHub Pages Deploys
+    ↓
+Available at Your URL
 ```
+
+---
 
 ## Troubleshooting
 
-### "Build Failed" in GitHub Actions
-- Check the Actions tab for error logs
-- Ensure the build works locally first
-- Verify Java 17 is available in your environment
+### "Build Failed" locally
+- Ensure Java 21 is installed: `java -version`
+- Check you ran `build_init` and `build_make_workspace`
+- See [EAGLERCRAFTX_README.md](EAGLERCRAFTX_README.md) for help
 
-### Site not loading at all
+### Site not loading on GitHub Pages
 - Ensure GitHub Pages is enabled in Settings → Pages
-- Wait 1-2 minutes after first deployment
+- Wait 1-2 minutes after first push
 - Clear browser cache (Ctrl+Shift+Del)
 
-### CORS/API errors
-- Ensure you're accessing via the full GitHub Pages URL
-- Check browser console (F12) for error details
-- Verify relay servers are configured correctly in `javascript/index.html`
+### Missing javascript/ folder
+- Run the build locally first: `./CompileEPK.sh && ./CompileJS.sh`
+- Commit the compiled files
+- Push to GitHub
 
-### Local server won't start
-- Ensure Python 3 is installed: `python3 --version`
-- Check that port 8000 is not in use
-- On Windows, use `python -m http.server 8000` if python3 command doesn't work
-
-## Advanced Configuration
-
-### Custom Domain
-1. Add a `CNAME` file to the `javascript/` folder with your domain
-2. Configure DNS records with your provider
-3. Update GitHub Pages settings to use the custom domain
-
-### Modify Build Settings
-Edit `.github/workflows/deploy-pages.yml` to change:
-- Java version
-- Build commands
-- Deployment triggers
-
-### Disable Automatic Deployment
-Delete `.github/workflows/deploy-pages.yml` and deploy manually to your hosting service.
-
-## Manual Deployment
-
-If you prefer not to use GitHub Pages:
-
-1. Build locally: `./CompileEPK.sh && ./CompileJS.sh`
-2. The `javascript/` folder contains your complete web client
-3. Deploy the `javascript/` folder to any web host
-4. Ensure your host serves it over HTTPS
+---
 
 ## Next Steps
 
-1. ✅ Commit these changes to your repository
-2. ✅ Push to the main branch
-3. ✅ Enable GitHub Pages in Settings → Pages (if not already done)
-4. ✅ Wait 2-3 minutes for the first deployment
-5. ✅ Access your site at `https://<username>.github.io/<repo-name>/`
+1. ✅ Run local build setup (see above)
+2. ✅ Compile JavaScript locally
+3. ✅ Commit and push compiled files
+4. ✅ Enable GitHub Pages in Settings
+5. ✅ Wait for deployment to complete
+6. ✅ Access your site at the GitHub Pages URL
+
+---
 
 ## Support
 
 For more information:
+- [EAGLERCRAFTX_README.md](EAGLERCRAFTX_README.md) - Build and compilation help
+- [docs/HOSTING_GUIDE.md](docs/HOSTING_GUIDE.md) - Detailed hosting documentation
 - [GitHub Pages Docs](https://docs.github.com/en/pages)
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
-- See `docs/HOSTING_GUIDE.md` for detailed hosting information
-- See `EAGLERCRAFTX_README.md` for EaglercraftX-specific information
-
----
-
-**Your EaglercraftX web client is now ready for GitHub Pages!** 🚀
