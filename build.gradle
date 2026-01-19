@@ -23,6 +23,16 @@ plugins {
     id "org.teavm" version "0.9.2"
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "--enable-preview"
+    options.release = 21
+}
+
 sourceSets {
     main {
         java {
