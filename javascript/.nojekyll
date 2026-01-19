@@ -1,0 +1,3 @@
+# .nojekyll file
+# Tells GitHub Pages not to process this site with Jekyll
+# This ensures all files are served as-is

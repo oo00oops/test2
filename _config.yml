@@ -1,0 +1,45 @@
+# Jekyll build settings for GitHub Pages
+# This config ensures GitHub Pages treats this as a static site
+
+# Build settings
+exclude:
+  - .gitignore
+  - README.md
+  - EAGLERCRAFTX_README.md
+  - src/
+  - build/
+  - gradle/
+  - gradle.properties
+  - build.gradle
+  - settings.gradle
+  - gradlew
+  - gradlew.bat
+  - CompileEPK.bat
+  - CompileEPK.sh
+  - CompileJS.bat
+  - CompileJS.sh
+  - MakeOfflineDownload.bat
+  - MakeOfflineDownload.sh
+  - MakeSignedClient.bat
+  - MakeSignedClient.sh
+  - desktopRuntime/
+  - wasm_gc_teavm/
+  - "*.gradle"
+  - ".gradle"
+
+# Minimal theme (no theme processing needed)
+theme: null
+
+# Output directory
+destination: _site
+
+# Don't process with Jekyll - just serve static files
+safe: true
+
+# YAML front matter
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: null
